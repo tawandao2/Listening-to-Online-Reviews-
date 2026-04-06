@@ -2,6 +2,27 @@
 Data analysis project, listening to online reviews for Saphora 
 # Project Summary 
 This project provides a strategic analysis of over 1,500 consumer reviews for L’Occitane and La Mer to decode the drivers of brand equity and customer loyalty in the prestige skincare market. By applying VADER Sentiment Analysis and Natural Language Processing (NLP) in R, I identified that while La Mer maintains a slightly higher average rating of 4.06, L’Occitane excels in "sensory storytelling," with customers frequently detailing the ritualistic experience of the products. A key finding revealed that 1-star reviews are significantly longer than 5-star reviews, acting as a diagnostic blueprint for product improvement, while dry skin emerged as the primary demographic for high satisfaction across both brands. These data-driven insights culminate in a proposed Starbucks x L’Occitane "Fast Beauty" subscription box, which leverages the STEPPS framework to transform daily coffee rituals into high-engagement skincare moments. 
+# Research questions 
+1. What are the means and distributions of star ratings? 
+2. Do longer reviews express more positive sentiments?
+o   Plot a histogram of review length (in characters) and calculate the mean. What is considered a long review? What is considered a short review?
+3. Calculate VADER scores on the review texts.
+4. What are the average VADER scores for the one-star reviews, long versus short reviews?
+5. Is the difference statistically significant?
+6. What are the average VADER scores for the five-star reviews, long versus short reviews?
+6. Is the difference statistically significant?
+7. Briefly, create a social media campaign by considering the following: What content will you create based on the Dragonfly and the STEPPS frameworks. What social media channel will you use? When/at what time and on which weekday will you launch a campaign? What metrics will you track? How would you increase customers’ engagement level?
+8. Why do you think people post reviews? Do higher ratings or volumes always signal positive sentiments? What psychologies or behaviors do you need to be cognizant of?
+9. Do higher ratings or volumes always signal positive sentiments? What psychologies or behaviors do you need to be cognizant of?
+10. L’Occitane versus La Mer, which brand’s products have more positive reviewer sentiments? 
+11. Plot word clouds and compare reviews of high ratings with those of low ratings. What are customers satisfied about? What are customers complaining about?
+12. Then, calculate “parts of speech” of the reviews. What adjectives are customers using when they are satisfied? What adjectives are they using when they are dissatisfied?
+13. Do certain types of customers (e.g., skin type, eye color) provide higher ratings for these products?
+14. How does VADER compare with the positive-to-negative ratio method, e.g., for a product, count the number of 4- and 5-star reviews and divide by the number of 1- and 2-star reviews. Which scoring algorithm, in your opinion, better captures the sentiment expressed in the product reviews?
+15. Do the analyses in R. Then, replicate them using AI tools and tips we went over in class! And/or the tools you’ve learned about from your classmates’ AI presentations. What do you think of this AI-augmented workflow? Do you like it and/or dislike it? What have you learned? 
+16. Can you plot word clouds based on the ingredient words in products.csv?  Which ingredients do highly rated products use?  Which ingredients are to be avoided?
+17. Apply an LLM or an AI tool and write a short report for the following: You are tasked with collaborating with Starbucks to create a seasonal (Spring, Summer, Fall, and Winter) fast beauty subscription box. Each box will have a theme that corresponds to a Starbucks seasonal drink. Determine what that theme should be. Apply the Customer-Centric framework. In addition to all the analyses and insights you have done and gathered, what other types of data analytics would you perform and/or what other kind of data would you collect? What kind of calculations? What kind of products would you ultimately recommend launching and why?
+
 
 # Data Description & Star Distributions 
 The dataset consists of over 1,500 customer reviews for luxury skincare brands (L'Occitane and La Mer). The Mean Star Rating is 4.04, indicating a generally positive customer sentiment.
