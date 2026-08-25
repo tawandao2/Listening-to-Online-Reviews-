@@ -1,20 +1,16 @@
 # Listening to Online Reviews: Consumer Sentiment & Brand Analytics
 
-**Decoding brand equity and customer loyalty in prestige skincare through NLP and sentiment analysis**
+Decoding brand equity and customer loyalty in prestige skincare using NLP and sentiment analysis.
 
----
+## Project Summary
 
-## 📌 Project Summary
+This project looks at over 1,500 consumer reviews for two prestige skincare brands, L'Occitane and La Mer, to understand what actually drives customer satisfaction and loyalty. I used VADER sentiment analysis and NLP techniques in R to go beyond star ratings and find out why customers feel the way they do.
 
-This project analyzes **1,500+ consumer reviews** for two prestige skincare brands, **L'Occitane** and **La Mer**, to uncover what drives customer satisfaction, loyalty, and brand perception. Using **VADER sentiment analysis** and **NLP techniques in R**, I extracted patterns that go beyond simple star ratings — revealing *why* customers feel the way they do, and how that translates into actionable brand strategy.
+La Mer has a slightly higher average rating than L'Occitane (4.06 vs lower), but the two brands win in different ways. L'Occitane does well on what I'd call sensory storytelling: customers describe the product as part of a calming daily ritual. La Mer wins on perceived performance and indulgence. I also found that 1 star reviews tend to be noticeably longer than 5 star reviews, which suggests they're a useful source of detail for product improvement rather than just noise.
 
-**Key finding:** While La Mer holds a slightly higher average rating (4.06 vs L'Occitane), L'Occitane wins on *sensory storytelling* — customers describe a ritualistic, comforting experience — while La Mer wins on *perceived performance and indulgence*. One-star reviews were also found to be significantly *longer* than five-star reviews, suggesting they act as a diagnostic blueprint for product improvement.
+As a final step, I used these findings to sketch out a seasonal subscription box concept pairing Starbucks drinks with skincare, based on the STEPPS framework.
 
-These insights culminate in a proposed **Starbucks x L'Occitane "Fast Beauty" subscription box** concept, using the STEPPS framework to translate seasonal drink rituals into skincare engagement moments.
-
----
-
-## 🛠️ Tools & Methods
+## Tools & Methods
 
 | Category | Tools |
 |---|---|
@@ -23,108 +19,93 @@ These insights culminate in a proposed **Starbucks x L'Occitane "Fast Beauty" su
 | NLP / POS Tagging | udpipe |
 | Text Mining | tm, wordcloud, tidytext |
 | Visualization | ggplot2, gridExtra |
-| Statistical Testing | Welch two-sample t-tests |
+| Statistical Testing | Welch two sample t-tests |
 
----
+## Key Findings
 
-## 📊 Key Findings
-
-### 1. Review Length Reveals Emotional Nuance
+### 1. Review length reveals emotional nuance
 
 ![Review Length Distribution](figures/01_review_length_distribution.png)
 
-The average review length is ~404 characters. Reviews longer than this are classified as "Long," shorter as "Short" — this distinction reveals a consistent pattern across sentiment.
+The average review is about 404 characters. I split reviews into "Long" and "Short" using that as the cutoff, and a clear pattern showed up:
 
-- **1-star reviews:** Long reviews are *less* negative (compound ≈ 0.302) than short ones (≈ 0.098) — a statistically significant difference (Welch t-test, p = 0.029). Unhappy customers who write more tend to express dissatisfaction in a more balanced way.
-- **5-star reviews:** Long reviews are *more* positive (≈ 0.832) than short ones (≈ 0.688), and highly significant (p ≈ 3.1e-11). Satisfied customers become even more enthusiastic when they write in detail.
+For 1 star reviews, the longer ones were actually less negative (compound score around 0.30) than the short ones (around 0.10). That difference held up in a Welch t-test (p = 0.029). For 5 star reviews, the pattern flips and gets stronger: long reviews were noticeably more positive (0.83) than short ones (0.69), and that difference was highly significant (p ≈ 3.1e-11).
 
 ![Sentiment: Long vs Short Reviews](figures/04_sentiment_long_vs_short.png)
 
-**Business implication:** Long reviews — in both directions — carry richer signal. Brands should prioritize mining long-form reviews for both product improvement (negative) and marketing copy (positive).
+In practice, this means long reviews carry more signal in both directions. They're worth mining separately for product feedback and for marketing material.
 
-### 2. Ratings Skew Positive, and Sentiment Tracks Cleanly
+### 2. Ratings skew positive, and sentiment tracks with them closely
 
 ![Rating Distribution](figures/02_rating_distribution.png)
 ![Average Sentiment by Rating](figures/03_avg_sentiment_by_rating.png)
 
-Sentiment increases steadily and predictably with star rating. This tight correlation means **sentiment monitoring can serve as an early-warning system** — a dip in review sentiment could signal emerging product issues before it shows up in the star-rating average.
+Sentiment rises steadily as star rating goes up, which is a nice sanity check on the data but also useful practically. Because the relationship is so consistent, a brand could watch sentiment drift over time as an early signal before it shows up in the average star rating.
 
-### 3. Brand Comparison: L'Occitane vs La Mer
+### 3. L'Occitane vs La Mer
 
-| Brand | Avg. Compound Sentiment | Positive:Negative Rating Ratio |
+| Brand | Avg. Compound Sentiment | Positive to Negative Rating Ratio |
 |---|---|---|
-| L'Occitane | 0.619 | 3.03 : 1 |
-| La Mer | 0.660 | 4.09 : 1 |
+| L'Occitane | 0.619 | about 3 to 1 |
+| La Mer | 0.660 | about 4 to 1 |
 
-La Mer shows consistently stronger sentiment and a higher ratio of positive-to-negative reviews. However, both brands are well-liked — they simply occupy **different emotional territory**:
-
-- **L'Occitane** wins on approachability, gentle formulas, and everyday comfort.
-- **La Mer** wins on indulgence, luxurious texture, and perceived effectiveness.
+La Mer edges out L'Occitane on both sentiment and rating ratio, but both brands are clearly well liked. They just occupy different territory. L'Occitane feels approachable and gentle, good for everyday use. La Mer feels indulgent and higher performing, but at a price customers notice.
 
 ![Word Clouds: High vs Low Ratings by Brand](figures/06_wordcloud_brand_comparison.png)
 
-### 4. What Customers Actually Say (Word-Level Analysis)
+### 4. What customers actually say
 
-Using POS tagging (udpipe), I extracted the adjectives most associated with high- and low-rated reviews per brand:
+Using part of speech tagging (udpipe), I pulled out the adjectives most associated with high and low rated reviews for each brand.
 
-- **L'Occitane — High ratings:** *amazing, soft, great, smooth, worth*
-- **L'Occitane — Low ratings:** *oily, thick, dry, strong, sensitive*
-- **La Mer — complaints center on:** heaviness, greasiness, and price
-- **La Mer — praise centers on:** rich texture, hydration, visible glow
+L'Occitane's high rated reviews use words like amazing, soft, great, smooth, worth. The low rated reviews mention oily, thick, dry, strong, sensitive, mostly about texture and skin fit rather than ineffectiveness. La Mer's complaints center more on heaviness, greasiness, and price, while its praise focuses on rich texture, hydration, and a visible glow.
 
-This confirms the brand narrative from the word clouds and sentiment scores: L'Occitane's complaints are about **texture/skin-reaction fit**, while La Mer's are about **value perception**, not efficacy.
+So the two brands aren't really competing on the same axis. L'Occitane's issues are about fit for different skin types. La Mer's issues are more about whether the price is worth it.
 
 ![Positive Review Word Cloud](figures/05_wordcloud_positive_reviews.png)
 
----
+## Strategic Application: Starbucks x Fast Beauty
 
-## 💡 Strategic Application: Starbucks x Fast Beauty
-
-As a capstone extension of the analysis, I translated these consumer sentiment patterns into a seasonal subscription-box concept pairing Starbucks' seasonal drink rituals with skincare emotional states:
+As an extension of the analysis, I sketched out a seasonal subscription box idea that pairs Starbucks' seasonal drinks with matching skincare themes:
 
 | Season | Drink Inspiration | Skincare Theme |
 |---|---|---|
 | Spring | Iced Matcha Latte | Fresh start, gentle detox, soft glow |
-| Summer | Pink Drink | Bright, fruity, radiance-focused |
-| Fall | Pumpkin Spice Latte | Cozy, barrier-repair, comfort |
+| Summer | Pink Drink | Bright, fruity, radiance focused |
+| Fall | Pumpkin Spice Latte | Cozy, barrier repair, comfort |
 | Winter | Peppermint Mocha | Indulgence, hydration, holiday sparkle |
 
-This concept demonstrates how sentiment-driven consumer insight can extend beyond diagnostics into **new product and marketing strategy**.
+This part is meant to show how sentiment analysis can feed directly into product and marketing ideas, not just diagnostics.
 
----
-
-## 📁 Repository Structure
+## Repository Structure
 
 ```
-├── README.md
-├── analysis/
-│   └── sentiment_analysis.R      # Full VADER + NLP analysis pipeline
-├── data/
-│   ├── authors.csv
-│   ├── products.csv
-│   └── reviews.csv
-└── figures/
-    ├── 01_review_length_distribution.png
-    ├── 02_rating_distribution.png
-    ├── 03_avg_sentiment_by_rating.png
-    ├── 04_sentiment_long_vs_short.png
-    ├── 05_wordcloud_positive_reviews.png
-    └── 06_wordcloud_brand_comparison.png
+README.md
+analysis/
+  sentiment_analysis.R
+data/
+  authors.csv
+  products.csv
+  reviews.csv
+figures/
+  01_review_length_distribution.png
+  02_rating_distribution.png
+  03_avg_sentiment_by_rating.png
+  04_sentiment_long_vs_short.png
+  05_wordcloud_positive_reviews.png
+  06_wordcloud_brand_comparison.png
 ```
 
-## ▶️ Reproducing the Analysis
+## Reproducing the Analysis
 
 ```r
-install.packages(c("tidyverse", "vader", "ggplot2", "gridExtra", 
+install.packages(c("tidyverse", "vader", "ggplot2", "gridExtra",
                     "tm", "wordcloud", "RColorBrewer", "tidytext", "udpipe"))
 ```
 
-Run `analysis/sentiment_analysis.R` from the project root after placing the data files in `data/`. Note: the udpipe English model (`english-ewt-ud-2.5-191206.udpipe`) is downloaded automatically via `udpipe_download_model()` on first run.
+Run `analysis/sentiment_analysis.R` from the project root after placing the data files in `data/`. The udpipe English model downloads automatically the first time you run `udpipe_download_model()`.
 
----
+## Author
 
-## 👤 Author
-
-**Tawanda Matiashe**
+Tawanda Matiashe
 M.S. Business Analytics, Lehigh University
-📫 tam325@lehigh.edu
+tawandamatiashe2@gmail.com
