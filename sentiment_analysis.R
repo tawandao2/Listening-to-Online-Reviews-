@@ -1,0 +1,448 @@
+setwd("C:/Users/tawan/Desktop/Listening Reviews/Sephora")
+
+# 1. Load Necessary Libraries
+# install.packages(c("tidyverse", "vader", "ggplot2", "gridExtra"))
+library(tidyverse)
+library(vader)   # For VADER Sentiment Analysis
+library(ggplot2)
+library(gridExtra)
+
+
+
+# 2. Import and Merge Data
+authors <- read.csv("authors.csv")
+products <- read.csv("products.csv")
+reviews <- read.csv("reviews.csv")
+
+data.frame(
+  Column = names(authors),
+  Type   = sapply(authors, class)
+)
+
+library(vader)
+library(dplyr)
+library(future.apply)
+
+library(dplyr)
+library(ggplot2)
+
+# calculate review length
+reviews_vader <- reviews_vader %>%
+  mutate(review_length = nchar(review_text))
+
+# histogram
+ggplot(reviews_vader, aes(review_length)) +
+  geom_histogram(bins = 50, fill = "steelblue", color = "white") +
+  labs(title = "Distribution of Review Lengths",
+       x = "Review Length (characters)",
+       y = "Count")
+
+# mean length
+mean_length <- mean(reviews_vader$review_length, na.rm = TRUE)
+mean_length
+
+median_length <- median(reviews_vader$review_length, na.rm = TRUE)
+
+reviews_vader <- reviews_vader %>%
+  mutate(length_group = ifelse(review_length > median_length, "Long", "Short"))
+
+reviews_vader <- reviews_vader %>%
+  mutate(review_length = nchar(review_text))
+
+median_length <- median(reviews_vader$review_length, na.rm = TRUE)
+
+reviews_vader <- reviews_vader %>%
+  mutate(length_group = ifelse(review_length > median_length, "Long", "Short"))
+
+one_star <- reviews_vader %>% filter(rating == 1)
+
+one_star_summary <- one_star %>%
+  group_by(length_group) %>%
+  summarise(
+    AvgCompound = mean(compound, na.rm = TRUE),
+    AvgPos      = mean(pos, na.rm = TRUE),
+    AvgNeu      = mean(neu, na.rm = TRUE),
+    AvgNeg      = mean(neg, na.rm = TRUE)
+  )
+
+one_star_summary
+
+t.test(compound ~ length_group, data = one_star)
+
+five_star <- reviews_vader %>% filter(rating == 5)
+
+five_star_summary <- five_star %>%
+  group_by(length_group) %>%
+  summarise(
+    AvgCompound = mean(compound, na.rm = TRUE),
+    AvgPos      = mean(pos, na.rm = TRUE),
+    AvgNeu      = mean(neu, na.rm = TRUE),
+    AvgNeg      = mean(neg, na.rm = TRUE)
+  )
+
+five_star_summary
+
+t.test(compound ~ length_group, data = five_star)
+
+
+library(dplyr)
+library(ggplot2)
+
+# If your reviews table is named reviews_vader, use that
+rating_dist <- reviews_vader %>%
+  count(rating)
+
+ggplot(rating_dist, aes(x = factor(rating), y = n)) +
+  geom_col(fill = "steelblue") +
+  labs(
+    title = "Distribution of Product Ratings",
+    x = "Star Rating",
+    y = "Number of Reviews"
+  ) +
+  theme_minimal()
+
+library(dplyr)
+library(ggplot2)
+
+# Calculate average sentiment by rating
+sentiment_by_rating <- reviews_vader %>%
+  group_by(rating) %>%
+  summarise(
+    AvgCompound = mean(compound, na.rm = TRUE),
+    AvgPos      = mean(pos, na.rm = TRUE),
+    AvgNeu      = mean(neu, na.rm = TRUE),
+    AvgNeg      = mean(neg, na.rm = TRUE)
+  )
+
+# Plot average compound sentiment by rating
+ggplot(sentiment_by_rating, aes(x = factor(rating), y = AvgCompound)) +
+  geom_col(fill = "darkorange") +
+  labs(
+    title = "Average Compound Sentiment by Star Rating",
+    x = "Star Rating",
+    y = "Average Compound Sentiment"
+  ) +
+  theme_minimal()
+
+
+library(dplyr)
+library(ggplot2)
+
+# Ensure length_group exists
+# reviews_vader <- reviews_vader %>%
+#   mutate(review_length = nchar(review_text),
+#          length_group = ifelse(review_length > median(review_length, na.rm = TRUE),
+#                                "Long", "Short"))
+
+# Calculate average sentiment by length group
+sentiment_by_length <- reviews_vader %>%
+  group_by(length_group) %>%
+  summarise(
+    AvgCompound = mean(compound, na.rm = TRUE),
+    AvgPos      = mean(pos, na.rm = TRUE),
+    AvgNeu      = mean(neu, na.rm = TRUE),
+    AvgNeg      = mean(neg, na.rm = TRUE)
+  )
+
+
+
+library(dplyr)
+library(tm)
+library(wordcloud)
+library(RColorBrewer)
+
+# Filter for positive reviews (4 and 5 stars)
+positive_reviews <- reviews_vader %>%
+  filter(rating >= 4)
+
+# Create VCorpus (prevents warnings)
+corpus_pos <- VCorpus(VectorSource(positive_reviews$review_text))
+
+# Clean text
+corpus_pos <- corpus_pos %>%
+  tm_map(content_transformer(tolower)) %>%
+  tm_map(removePunctuation) %>%
+  tm_map(removeNumbers) %>%
+  tm_map(removeWords, stopwords("english"))
+
+# Term-document matrix
+tdm_pos <- TermDocumentMatrix(corpus_pos)
+m_pos <- as.matrix(tdm_pos)
+
+# Word frequencies
+word_freq_pos <- sort(rowSums(m_pos), decreasing = TRUE)
+df_pos <- data.frame(word = names(word_freq_pos), freq = word_freq_pos)
+
+# Word cloud
+set.seed(123)
+wordcloud(
+  words = df_pos$word,
+  freq = df_pos$freq,
+  min.freq = 5,
+  max.words = 100,
+  random.order = FALSE,
+  rot.per = 0.35,
+  colors = brewer.pal(8, "Greens")
+)
+
+library(dplyr)
+library(ggplot2)
+library(tm)
+library(wordcloud)
+library(RColorBrewer)
+library(tidytext)
+
+# Focus on the two brands
+loccitane_la_mer <- reviews_vader %>%
+  filter(brand %in% c("L'Occitane", "La Mer"))
+colnames(reviews_vader)
+
+products <- read.csv("products.csv")
+colnames(products)
+
+reviews_vader <- reviews_vader %>%
+  left_join(products %>% select(product_id, brand_name), 
+            by = "product_id")
+
+colnames(reviews_vader)
+
+loccitane_la_mer <- reviews_vader %>%
+  filter(brand_name %in% c("L'Occitane", "La Mer"))
+
+library(dplyr)
+library(ggplot2)
+library(tm)
+library(wordcloud)
+library(RColorBrewer)
+library(tidytext)
+
+# Focus on the two brands
+loccitane_la_mer <- reviews_vader %>%
+  filter(brand_name %in% c("L'Occitane", "La Mer"))
+
+sentiment_brand <- loccitane_la_mer %>%
+  group_by(brand_name) %>%
+  summarise(
+    avg_compound = mean(compound, na.rm = TRUE),
+    pos_share    = mean(pos, na.rm = TRUE),
+    neg_share    = mean(neg, na.rm = TRUE),
+    n = n()
+  )
+
+rating_ratio <- loccitane_la_mer %>%
+  mutate(rating_group = case_when(
+    rating >= 4 ~ "high",
+    rating <= 2 ~ "low",
+    TRUE        ~ "mid"
+  )) %>%
+  count(brand_name, rating_group) %>%
+  tidyr::pivot_wider(
+    names_from = rating_group,
+    values_from = n,
+    values_fill = 0
+  ) %>%
+  mutate(pos_neg_ratio = high / pmax(low, 1))
+
+rating_ratio
+
+make_wordcloud <- function(data, title, col_palette = "Dark2", min_freq = 3) {
+  corpus <- VCorpus(VectorSource(data$review_text))
+  
+  corpus <- corpus %>%
+    tm_map(content_transformer(tolower)) %>%
+    tm_map(removePunctuation) %>%
+    tm_map(removeNumbers) %>%
+    tm_map(removeWords, stopwords("english")) %>%
+    tm_map(stripWhitespace)
+  
+  tdm <- TermDocumentMatrix(corpus)
+  m   <- as.matrix(tdm)
+  freq <- sort(rowSums(m), decreasing = TRUE)
+  df   <- data.frame(word = names(freq), freq = freq)
+  
+  set.seed(123)
+  wordcloud(
+    words = df$word,
+    freq  = df$freq,
+    min.freq = min_freq,
+    max.words = 100,
+    random.order = FALSE,
+    rot.per = 0.3,
+    colors = brewer.pal(8, col_palette)
+  )
+  title(main = title)
+}
+
+high_loc <- loccitane_la_mer %>%
+  filter(brand_name == "L'Occitane", rating >= 4)
+
+low_loc <- loccitane_la_mer %>%
+  filter(brand_name == "L'Occitane", rating <= 2)
+
+high_lm <- loccitane_la_mer %>%
+  filter(brand_name == "La Mer", rating >= 4)
+
+low_lm <- loccitane_la_mer %>%
+  filter(brand_name == "La Mer", rating <= 2)
+
+par(mfrow = c(2, 2))
+make_wordcloud(high_loc, "L'Occitane – High Ratings", "Greens", min_freq = 3)
+make_wordcloud(low_loc,  "L'Occitane – Low Ratings",  "Reds",   min_freq = 2)
+make_wordcloud(high_lm,  "La Mer – High Ratings",     "Greens", min_freq = 3)
+make_wordcloud(low_lm,   "La Mer – Low Ratings",      "Reds",   min_freq = 2)
+par(mfrow = c(1, 1))
+
+
+par(mfrow = c(2, 2))
+
+make_wordcloud(high_loc, "L'Occitane — High Ratings",  "Greens", min_freq = 3)
+make_wordcloud(low_loc,  "L'Occitane — Low Ratings",   "Reds",   min_freq = 2)
+make_wordcloud(high_lm,  "La Mer — High Ratings",      "Greens", min_freq = 3)
+make_wordcloud(low_lm,   "La Mer — Low Ratings",       "Reds",   min_freq = 2)
+
+par(mfrow = c(1, 1))
+
+
+make_wordcloud <- function(data, title, col_palette = "Dark2", min_freq = 3) {
+  corpus <- VCorpus(VectorSource(data$review_text))
+  
+  corpus <- corpus %>%
+    tm_map(content_transformer(tolower)) %>%
+    tm_map(removePunctuation) %>%
+    tm_map(removeNumbers) %>%
+    tm_map(removeWords, stopwords("english")) %>%
+    tm_map(stripWhitespace)
+  
+  # Remove empty docs
+  corpus <- corpus[which(sapply(corpus, function(x) nchar(x$content) > 0))]
+  
+  tdm <- TermDocumentMatrix(corpus)
+  m   <- as.matrix(tdm)
+  freq <- sort(rowSums(m), decreasing = TRUE)
+  df   <- data.frame(word = names(freq), freq = freq)
+  
+  set.seed(123)
+  wordcloud(
+    words = df$word,
+    freq  = df$freq,
+    min.freq = min_freq,
+    max.words = 100,
+    random.order = FALSE,
+    rot.per = 0.3,
+    colors = brewer.pal(8, col_palette)
+  )
+  title(main = title)
+}
+
+par(mfrow = c(2, 2),    # 2 rows, 2 columns
+    mar = c(2, 2, 3, 2) # tighter margins so clouds fill the space
+)
+
+
+make_wordcloud(high_loc, "L'Occitane — High Ratings",  "Dark2", min_freq = 3)
+make_wordcloud(low_loc,  "L'Occitane — Low Ratings",   "Dark2", min_freq = 2)
+make_wordcloud(high_lm,  "La Mer — High Ratings",      "Dark2", min_freq = 3)
+make_wordcloud(low_lm,   "La Mer — Low Ratings",       "Dark2", min_freq = 2)
+
+par(mfrow = c(1, 1))
+
+library(udpipe)
+
+udpipe_download_model(language = "english")
+library(udpipe)
+
+# Load a model (after downloading once)
+# model <- udpipe_download_model("english")
+model <- udpipe_load_model("english-ewt-ud-2.5-191206.udpipe")  # adjust path
+
+pos_data <- loccitane_la_mer %>%
+  mutate(sent_group = case_when(
+    rating >= 4 ~ "high",
+    rating <= 2 ~ "low",
+    TRUE        ~ NA_character_
+  )) %>%
+  filter(!is.na(sent_group))
+
+anno <- udpipe_annotate(model, x = pos_data$review_text, doc_id = pos_data$review_id)
+anno <- as.data.frame(anno)
+
+
+anno <- anno %>%
+  left_join(pos_data %>% select(review_id, brand_name, sent_group),
+            by = c("doc_id" = "review_id"))
+anno <- anno %>%
+  mutate(doc_id = as.integer(doc_id)) %>%
+  left_join(pos_data %>% select(review_id, brand_name, sent_group),
+            by = c("doc_id" = "review_id"))
+
+adjectives <- anno %>%
+  filter(upos == "ADJ") %>%
+  count(brand_name, sent_group, lemma, sort = TRUE)
+
+head(adjectives, 20)
+
+
+top_adj_high <- adjectives %>%
+  filter(sent_group == "high") %>%
+  group_by(brand_name) %>%
+  slice_max(n, n = 10)
+
+top_adj_low <- adjectives %>%
+  filter(sent_group == "low") %>%
+  group_by(brand_name) %>%
+  slice_max(n, n = 10)
+
+
+top_adj_low
+
+top_adj_high
+
+
+ratings_by_skin <- loccitane_la_mer %>%
+  group_by(brand_name, skin_type) %>%
+  summarise(
+    avg_rating   = mean(rating, na.rm = TRUE),
+    avg_compound = mean(compound, na.rm = TRUE),
+    n = n()
+  )
+
+ratings_by_eye <- loccitane_la_mer %>%
+  group_by(brand_name, eye_color) %>%
+  summarise(
+    avg_rating   = mean(rating, na.rm = TRUE),
+    avg_compound = mean(compound, na.rm = TRUE),
+    n = n()
+  )
+colnames(loccitane_la_mer)
+ratings_by_skin <- loccitane_la_mer %>%
+  group_by(brand_name, skin_type) %>%
+  summarise(
+    avg_rating   = mean(rating, na.rm = TRUE),
+    avg_compound = mean(compound, na.rm = TRUE),
+    n = n(),
+    .groups = "drop"
+  )
+
+colnames(authors)
+colnames(products)
+colnames(reviews)
+
+
+
+compare_scores <- loccitane_la_mer %>%
+  mutate(rating_group = case_when(
+    rating >= 4 ~ "high",
+    rating <= 2 ~ "low",
+    TRUE        ~ "mid"
+  )) %>%
+  group_by(product_id, brand_name) %>%
+  summarise(
+    avg_compound = mean(compound, na.rm = TRUE),
+    high = sum(rating_group == "high"),
+    low  = sum(rating_group == "low"),
+    pos_neg_ratio = high / pmax(low, 1),
+    n = n()
+  )
+
+cor(compare_scores$avg_compound, compare_scores$pos_neg_ratio, use = "complete.obs")
+
